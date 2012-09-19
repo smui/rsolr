@@ -23,6 +23,13 @@ class RSolr::Connection
     end
   end
 
+  # SMUI - patch to fix 400 errors on solr updates with certain utf8 chars
+  def execute_with_binary_encoding(client, request_context)
+    request_context[:data] = request_context[:data].force_encoding(Encoding::BINARY) if request_context[:data]
+    execute_without_binary_encoding(client, request_context)
+  end
+  alias_method_chain :execute, :binary_encoding
+
   protected
 
   # This returns a singleton of a Net::HTTP or Net::HTTP.Proxy request object.
